@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+</head>
+
+<style>
+    #messageBox {
+        border: 2px solid #8AC007;
+        border-radius: 10px;
+        height: 200px;
+        width: 600px;
+        overflow: auto;
+        background-color: #FFF;
+    }
+
+</style>
+
+<body>
+
+<h1>Welcome to our Chat app!</h1>
+<div id="status"></div>
+
+<h2>Messages:</h2>
+
+<div id="messageBox"></div>
+<br>
+<div id="mymessage">
+    <label>My message:</label>
+    <input type="text" id="mymessagetext" value="" size="40" oninput="" onkeydown="" />
+    <button type="submit" id="sendButton" onclick="sendFullMessage(conn)">Send Message</button>
+</div>
+
+</body>
+</html>
+
+<script>
+
+    //Your JavaScript code goes here
+
+
+    var conn = new WebSocket('ws://localhost:8080');
+    conn.onopen = function(e) {
+        console.log("Connection established!");
+        document.getElementById("status").innerHTML = "You are connected to the chat! Welcome!";
+
+    };
+
+    //Function that will be called whenever a new message arrives from the WS server
+    conn.onmessage = function(e) {
+
+        var messageBox = document.getElementById("messageBox");
+        messageBox.innerHTML = messageBox.innerHTML + e.data;
+        messageBox.scrollTop = messageBox.scrollHeight;
+    };
+
+
+    function sendFullMessage(conn){
+
+        var message = $("#mymessagetext").val() + '</br>';
+        //document.write(message);
+        conn.send(message);
+        $("#mymessagetext").val('');
+    }
+
+    function sendLastChar(conn){
+
+        var message = $("#mymessagetext").val();
+        //document.write(message);
+        conn.send(message.slice(-1));
+    }
+
+    $("#mymessagetext").keyup(function(event){
+        if(event.keyCode == 13){
+            $("#sendButton").click();
+        }
+    });
+
+</script>
